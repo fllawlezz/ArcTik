@@ -9,6 +9,9 @@
 import UIKit
 import SocketIO
 
+let pauseSocketNotification = "pauseSocketNotification";
+let resumeSocketNotification = "resumeSocketNotification";
+
 protocol ChatPageDelegate{
     func resetNavigationBar();
 }
@@ -36,7 +39,7 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
     
     override func viewDidLoad() {
         super.viewDidLoad();
-        
+        addObservers();
         setupHandles();
         setupSocket();
         localFeedPage?.handleCancel();//resets navigation bar
@@ -70,6 +73,18 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
         self.chatRoomID = "\(self.thisHeadline!.chatRoomID!)";
         
 //        print("userID:\(self.userID!)")
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self);
+    }
+    
+    func addObservers(){
+        let pauseName = Notification.Name(rawValue: pauseSocketNotification);
+        NotificationCenter.default.addObserver(self, selector: #selector(self.stopSocket), name: pauseName, object: nil);
+        
+        let resumeName = Notification.Name(rawValue: resumeSocketNotification);
+        NotificationCenter.default.addObserver(self, selector: #selector(self.resumeSocket), name: resumeName, object: nil);
     }
     
     func setupSocket(){
@@ -243,6 +258,22 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
         NotificationCenter.default.post(name: name, object: nil);
     }
 }
+
+extension ChatPage{
+    @objc func stopSocket(){
+//        print("stopped socket");
+        let userData = ["userID": self.userID!,"chatRoomID":self.chatRoomID!];
+        socket.emit("endSocket", with: [userData]);
+        self.manager.disconnect();
+        self.socket.disconnect();
+    }
+    
+    @objc func resumeSocket(){
+//        print("reconnected socket");
+        self.socket.connect();
+    }
+}
+
 
 extension ChatPage{
     func scrollToBottom() {

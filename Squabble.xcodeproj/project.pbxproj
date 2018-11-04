@@ -244,6 +244,7 @@
 		CA199788211D18A0003C3E64 /* ChatPage */ = {
 			isa = PBXGroup;
 			children = (
+				CA6033F921892A1800AAC9E5 /* Cells */,
 				CA199789211D18AF003C3E64 /* Chat.swift */,
 			);
 			path = ChatPage;
@@ -342,6 +343,13 @@
 				CA5872E5218922EE00719570 /* SplashPage.swift */,
 			);
 			path = SplashPage;
+			sourceTree = "<group>";
+		};
+		CA6033F921892A1800AAC9E5 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Cells;
 			sourceTree = "<group>";
 		};
 		CA6DEB942181AFEB008E571E /* CategoryField */ = {

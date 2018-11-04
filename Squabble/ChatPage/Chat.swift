@@ -8,10 +8,24 @@
 
 import UIKit
 
-class Chat: UIViewController {
+class Chat: UICollectionViewController {
     
-    override func viewDidLoad() {
-        super.viewDidLoad();
-    }
+//    override func viewDidLoad() {
+//        super.viewDidLoad();
+//    }
+//
+//    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//        <#code#>
+//    }
+//
+//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+//        return 1;
+//    }
+//
+//    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        <#code#>
+//    }
+//
+//
     
 }
