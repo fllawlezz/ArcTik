@@ -94,6 +94,7 @@
 		CAC727FE210A5070007AE977 /* FeedCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAC727FD210A5070007AE977 /* FeedCollectionView.swift */; };
 		CAC72801210A50F4007AE977 /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAC72800210A50F4007AE977 /* FeedCollectionViewCell.swift */; };
 		CAEE807E21110BE8006E3629 /* MessageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEE807D21110BE8006E3629 /* MessageTextView.swift */; };
+		CAF5BAFF219E132D00DB4EC3 /* NoHeadlinesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF5BAFE219E132D00DB4EC3 /* NoHeadlinesCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -200,6 +201,7 @@
 		CAC727FD210A5070007AE977 /* FeedCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCollectionView.swift; sourceTree = "<group>"; };
 		CAC72800210A50F4007AE977 /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
 		CAEE807D21110BE8006E3629 /* MessageTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTextView.swift; sourceTree = "<group>"; };
+		CAF5BAFE219E132D00DB4EC3 /* NoHeadlinesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoHeadlinesCell.swift; sourceTree = "<group>"; };
 		CD0AD087C40356C63BCEAAC4 /* Pods_SquabbleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SquabbleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EED7CA4259FD7F10B2941D38 /* Pods-SquabbleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SquabbleTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SquabbleTests/Pods-SquabbleTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -658,7 +660,7 @@
 		CAC727FF210A50C5007AE977 /* FeedCollectionView */ = {
 			isa = PBXGroup;
 			children = (
-				CAC72802210A6110007AE977 /* FeedCollectionViewCell */,
+				CAF5BAFD219E131000DB4EC3 /* Cells */,
 				CAC727FD210A5070007AE977 /* FeedCollectionView.swift */,
 			);
 			path = FeedCollectionView;
@@ -680,6 +682,15 @@
 				CAEE807D21110BE8006E3629 /* MessageTextView.swift */,
 			);
 			path = InputAccessoryView;
+			sourceTree = "<group>";
+		};
+		CAF5BAFD219E131000DB4EC3 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				CAC72802210A6110007AE977 /* FeedCollectionViewCell */,
+				CAF5BAFE219E132D00DB4EC3 /* NoHeadlinesCell.swift */,
+			);
+			path = Cells;
 			sourceTree = "<group>";
 		};
 		CD88EBA89251316E9B8DE40F /* Pods */ = {
@@ -873,6 +884,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CAF5BAFF219E132D00DB4EC3 /* NoHeadlinesCell.swift in Sources */,
 				CA860944211D47A4005B9B47 /* TermsCollectionView.swift in Sources */,
 				CA955728210A7C3700069A26 /* GlobalFeed.swift in Sources */,
 				CAB1AC2D210DB93C00F0A812 /* ProfilePage.swift in Sources */,

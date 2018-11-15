@@ -198,10 +198,10 @@ extension LocalFeed{
             self.headlines.removeAll();
         }
         let userID = standard.object(forKey: "userID") as! String;
-//        userID = "0";
-        let url = URL(string: "http://54.202.134.243:3000/load_headlines")!
+        let url = URL(string: "http://54.202.134.243:3000/load_Local_headlines")!
         var request = URLRequest(url: url);
-        let postBody = "userID=\(userID)"
+        let postBody = "userID=\(userID)&latitude=\(userLatitude!)&longitude=\(userLongtitude!)"
+//        print(postBody);
         request.httpBody = postBody.data(using: .utf8);
         request.httpMethod = "POST";
         let task = URLSession.shared.dataTask(with: request) { (data, response, err) in
@@ -218,7 +218,7 @@ extension LocalFeed{
                     do{
                         let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary;
                         
-                        print(json);
+//                        print(json);
                         
                         DispatchQueue.main.async {
                             //headlineIDs,posterIDs,posterNames,descriptions,upVotes,downVotes,chatRoomPopulations,categories
@@ -269,6 +269,10 @@ extension LocalFeed{
                         }
                     }catch{
                         print("error");
+                        DispatchQueue.main.async {
+                            self.refreshControl.endRefreshing();
+                            self.showErrorAlert();
+                        }
                     }
                 }else{
                     //show error loading

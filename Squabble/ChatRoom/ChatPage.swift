@@ -62,8 +62,9 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        let userData = ["userID": self.userID!,"chatRoomID":self.chatRoomID!];
-        socket.emit("endSocket", with: [userData]);
+//        let userData = ["userID": self.userID!,"chatRoomID":self.chatRoomID!];
+//        socket.emit("endSocket", with: [userData]);
+        socket.disconnect();
         manager.disconnect()
     }
     
@@ -173,14 +174,7 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
                 return cell;
             }else{
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: otherMessageReuse, for: indexPath) as! OtherMessageCell
-//                cell.backgroundColor = UIColor.red;
-//                cell.senderNameLabel.backgroundColor = UIColor.blue;
                 cell.senderNameLabel.isHidden = false;
-//                if(messages.count > 1 && indexPath.item > 0){
-//                    if(currentMessage.senderID! == messages[indexPath.item-1].senderID!){
-//                        cell.senderNameLabel.isHidden = true;
-//                    }
-//                }
                 cell.bubbleViewWidthAnchor?.constant = self.estimateFrameForText(message: currentMessage.message!).width+20;
                 cell.setMessage(message: currentMessage.message!);
                 cell.setSenderName(name: currentMessage.senderName!);
@@ -208,31 +202,14 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
         }else{
             let currentMessage = messages[indexPath.item];
             if(currentMessage.senderID! == self.userID!){
-//                let frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50);
-//                let dummyCell = UserMessageCell(frame: frame);
-//                dummyCell.messageTextView.text = currentMessage.message!;
-//                dummyCell.layoutIfNeeded();
-//
-//                let targetSize = CGSize(width: self.view.frame.width, height: 1000);
-//                let estimatedSize = dummyCell.systemLayoutSizeFitting(targetSize);
                 
                 let frame1 = estimateFrameForText(message: currentMessage.message!);
-//                return CGSize(width: self.view.frame.width, height: estimatedSize.height+20);
                 return CGSize(width: self.view.frame.width, height: frame1.height+25);
             }else{
                 
                 let frame = estimateFrameForText(message: currentMessage.message!);
-//                if(messages.count > 2 && indexPath.item > 0){
-//                    let previousMessage = messages[indexPath.item - 1];
-//                    if(currentMessage.senderID! == previousMessage.senderID!){
-//                        return CGSize(width: self.view.frame.width, height: frame.height+30);
-//                    }
-//                }
                 
                 return CGSize(width: self.view.frame.width, height: frame.height+25+30);
-                
-//                let frame = estimateFrameForText(message: currentMessage.message!);
-//                return CGSize(width: self.view.frame.width, height: frame.height+30+25);
             }
         }
     }
@@ -262,8 +239,8 @@ class ChatPage: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
 extension ChatPage{
     @objc func stopSocket(){
 //        print("stopped socket");
-        let userData = ["userID": self.userID!,"chatRoomID":self.chatRoomID!];
-        socket.emit("endSocket", with: [userData]);
+//        let userData = ["userID": self.userID!,"chatRoomID":self.chatRoomID!];
+//        socket.emit("endSocket", with: [userData]);
         self.manager.disconnect();
         self.socket.disconnect();
     }
@@ -303,14 +280,54 @@ extension ChatPage{
     func showFlagAlert(){
         let alert = UIAlertController(title: "Flag?", message: "Flag this post as being inappropriate?", preferredStyle: .alert);
         alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { (action) in
-            print("flagged");
+//            print("flagged");
+            self.flagHeadline();
         }))
         alert.addAction(UIAlertAction(title: "No", style: .default, handler: nil));
         self.present(alert, animated: true, completion: nil);
     }
     
+    @objc func flagHeadline(){
+        if(self.thisHeadline != nil){
+            let url = URL(string: "http://54.202.134.243:3000/flag_headline")!;
+            var request = URLRequest(url: url);
+            let body = "headlineID=\(self.thisHeadline!.headlineID!)"
+            request.httpMethod = "POST";
+            request.httpBody = body.data(using: .utf8);
+            let task = URLSession.shared.dataTask(with: request) { (data, res, err) in
+                if(err != nil){
+                    DispatchQueue.main.async {
+                        self.showErrorAlert();
+                        return;
+                    }
+                }
+                
+                if(data != nil){
+                    let response = NSString(data: data!, encoding: 8);
+                    DispatchQueue.main.async {
+                        if(response == "error"){
+                            self.showErrorAlert();
+                        }else{
+                            self.showFlagSuccess();
+                        }
+                    }
+                }
+            }
+            task.resume()
+        }
+    }
+    
     func showErrorAlert(){
         let alert = UIAlertController(title: "Ugh-Oh", message: "There was a problem connecting to our servers... sorry for the inconvenience. Try again later!", preferredStyle: .alert);
+        alert.addAction(UIAlertAction(title: "Ok", style: .destructive, handler: { (action) in
+            self.manager.disconnect();
+            self.navigationController?.popViewController(animated: true);
+        }))
+        self.present(alert, animated: true, completion: nil);
+    }
+    
+    func showFlagSuccess(){
+        let alert = UIAlertController(title: "Flagged!", message: "The post you have has successfully been flagged! We will analyze it so see if it contains any inappropriate material.", preferredStyle: .alert);
         alert.addAction(UIAlertAction(title: "Ok", style: .destructive, handler: { (action) in
             self.manager.disconnect();
             self.navigationController?.popViewController(animated: true);

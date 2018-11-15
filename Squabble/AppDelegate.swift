@@ -11,6 +11,9 @@ import CoreData
 var UIscreenWidth: CGFloat?;
 let standard = UserDefaults.standard
 
+var userLatitude: String?;
+var userLongtitude: String?;
+
 func saveStandards(userName: String, firstName: String, lastName: String, email: String, password: String, userID: String){
     standard.set(userName, forKey: "userName");
     standard.set(firstName, forKey: "firstName");
