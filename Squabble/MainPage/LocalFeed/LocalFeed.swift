@@ -19,7 +19,9 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
     
     let refreshControl = UIRefreshControl();
     
+    
     var headlines = [Headline]();
+    var hotHeadlines = [Headline]();
     
     var localFeedTitleView: UISegmentedControl?;
     var composeButton: UIButton?;
@@ -32,6 +34,7 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
     
     override func viewDidLoad() {
         super.viewDidLoad();
+        
         addObservers();
         self.view.backgroundColor = UIColor.white;
         self.view.snapshotView(afterScreenUpdates: true);
@@ -65,6 +68,7 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
     
     fileprivate func setupNavBar(){
         localFeedTitleView = FeedTitleView(items: ["New","Hot"]);
+        localFeedTitleView?.addTarget(self, action: #selector(self.selectorValueChanged), for: .valueChanged);
         
         self.navigationItem.titleView = localFeedTitleView;
         
@@ -120,6 +124,9 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
         composeButton?.isHidden = true; 
         searchButton?.isHidden = true;
         
+        self.localFeed.headlines = nil;
+        self.localFeed.reloadData();
+        
         self.navigationItem.setLeftBarButton(UIBarButtonItem(customView: searchBar!), animated: true);
         self.navigationItem.setRightBarButton(UIBarButtonItem(customView: cancelButton), animated: true);
         
@@ -137,6 +144,15 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
         self.localFeedTitleView?.isHidden = false;
         self.composeButton?.isHidden = false;
         self.searchButton?.isHidden = false;
+        
+        let segmentIndex = self.localFeedTitleView!.selectedSegmentIndex;
+        if(segmentIndex == 0){
+            self.localFeed.headlines = self.headlines;
+            self.localFeed.reloadData();
+        }else{
+            self.localFeed.headlines = self.hotHeadlines;
+            self.localFeed.reloadData();
+        }
         
         self.navigationItem.setLeftBarButton(UIBarButtonItem(customView: searchButton!), animated: true);
         self.navigationItem.setRightBarButton(UIBarButtonItem(customView: composeButton!), animated: true);
@@ -174,14 +190,24 @@ class LocalFeed: UIViewController, UITextFieldDelegate,ComposeNewHeadlineDelegat
 extension LocalFeed{
 
     func postHeadline(headline: Headline) {
+//        print(headline.headline!);
+        let newHeadline = Headline(headline: headline.headline!, headlineID: headline.headlineID!, chatRoomID: headline.chatRoomID!, posterName: headline.posterName!, categoryName: headline.categoryName!, categoryID: headline.categoryID!, voteCount: headline.voteCount!, chatRoomPopulation: headline.chatRoomPopulation!, globalOrLocal: headline.globalOrLocal!);
+        
         if(headline.globalOrLocal == 0){
-            self.headlines.insert(headline, at: 0);
-            self.localFeed.headlines = self.headlines;
-            let insertIndex = IndexPath(item: 0, section: 0);
-            self.localFeed.insertItems(at: [insertIndex]);
+            if(self.headlines.count > 0){
+                self.headlines.insert(newHeadline, at: 0);
+                self.localFeed.headlines = self.headlines;
+                let insertIndex = IndexPath(item: 0, section: 0);
+                self.localFeed.insertItems(at: [insertIndex]);
+            }else{
+                self.headlines.append(headline);
+                self.localFeed.headlines = self.headlines;
+                self.localFeed.reloadData();
+            }
+            
             
             let name = Notification.Name(rawValue: reloadMyHeadlinesNotification);
-            let info = ["headline":headline];
+            let info = ["headline":newHeadline];
             NotificationCenter.default.post(name: name, object: nil, userInfo: info);
         }
     }
@@ -194,93 +220,92 @@ extension LocalFeed{
 extension LocalFeed{
     
     @objc func refreshHeadlines(){
-        if(self.headlines.count > 0){
-            self.headlines.removeAll();
-        }
-        let userID = standard.object(forKey: "userID") as! String;
-        let url = URL(string: "http://54.202.134.243:3000/load_Local_headlines")!
-        var request = URLRequest(url: url);
-        let postBody = "userID=\(userID)&latitude=\(userLatitude!)&longitude=\(userLongtitude!)"
-//        print(postBody);
-        request.httpBody = postBody.data(using: .utf8);
-        request.httpMethod = "POST";
-        let task = URLSession.shared.dataTask(with: request) { (data, response, err) in
-            if(err != nil){
-                //show error
-                DispatchQueue.main.async {
-                    self.showErrorAlert();
-                }
+        if(self.localFeedTitleView?.selectedSegmentIndex == 0){
+            if(self.headlines.count > 0){
+                self.headlines.removeAll();
             }
-            
-            if(data != nil){
-                let response = NSString(data: data!, encoding: 8);
-                if(response != "error"){
-                    do{
-                        let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary;
-                        
-//                        print(json);
-                        
-                        DispatchQueue.main.async {
-                            //headlineIDs,posterIDs,posterNames,descriptions,upVotes,downVotes,chatRoomPopulations,categories
-                            let headlineIDs = json["headlineIDs"] as! NSArray;
-                            let posterIDs = json["posterIDs"] as! NSArray;
-                            let posterNames = json["posterNames"] as! NSArray;
-                            let descriptions = json["descriptions"] as! NSArray;
-                            let upVotes = json["upVotes"] as! NSArray;
-                            let downVotes = json["downVotes"] as! NSArray;
-                            let chatRoomPopulations = json["chatRoomPopulations"] as! NSArray;
-                            let categories = json["categories"] as! NSArray;
-                            let categoryIDs = json["categoryIDs"] as! NSArray;
-                            let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
+            let userID = standard.object(forKey: "userID") as! String;
+            let url = URL(string: "http://54.202.134.243:3000/load_Local_headlines")!
+            var request = URLRequest(url: url);
+            let postBody = "userID=\(userID)&latitude=\(userLatitude!)&longitude=\(userLongtitude!)"
+    //        print(postBody);
+            request.httpBody = postBody.data(using: .utf8);
+            request.httpMethod = "POST";
+            let task = URLSession.shared.dataTask(with: request) { (data, response, err) in
+                if(err != nil){
+                    //show error
+                    DispatchQueue.main.async {
+                        self.refreshControl.endRefreshing();
+                        self.showErrorAlert();
+                    }
+                }
+                
+                if(data != nil){
+                    let response = NSString(data: data!, encoding: 8);
+                    if(response != "error"){
+                        do{
+                            let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary;
                             
-                            var count = 0;
-                            while(count<headlineIDs.count){
-                                
-                                let headlineID = String(headlineIDs[count] as! Int);
-                                _ = String(posterIDs[count] as! Int);
-                                let posterName = posterNames[count] as! String;
-                                let description = descriptions[count] as! String;
-                                let upVote = upVotes[count] as! Int;
-                                let downVote = downVotes[count] as! Int;
-                                let chatRoomPop = chatRoomPopulations[count] as! Int;
-                                let category = categories[count] as! String;
-                                let categoryID = categoryIDs[count] as! Int;
-                                let chatRoomID = chatRoomIDs[count] as! Int;
-                                
-                                let totalVoteCount = upVote - downVote;
-                                
-                                let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
-                                
-                                self.headlines.append(newHeadline);
-                                count+=1;
-                            }
+    //                        print(json);
                             
                             DispatchQueue.main.async {
+                                //headlineIDs,posterIDs,posterNames,descriptions,upVotes,downVotes,chatRoomPopulations,categories
+                                let headlineIDs = json["headlineIDs"] as! NSArray;
+                                let posterIDs = json["posterIDs"] as! NSArray;
+                                let posterNames = json["posterNames"] as! NSArray;
+                                let descriptions = json["descriptions"] as! NSArray;
+                                let upVotes = json["upVotes"] as! NSArray;
+                                let downVotes = json["downVotes"] as! NSArray;
+                                let chatRoomPopulations = json["chatRoomPopulations"] as! NSArray;
+                                let categories = json["categories"] as! NSArray;
+                                let categoryIDs = json["categoryIDs"] as! NSArray;
+                                let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
                                 
+                                var count = 0;
+                                while(count<headlineIDs.count){
+                                    
+                                    let headlineID = String(headlineIDs[count] as! Int);
+                                    _ = String(posterIDs[count] as! Int);
+                                    let posterName = posterNames[count] as! String;
+                                    let description = descriptions[count] as! String;
+                                    let upVote = upVotes[count] as! Int;
+                                    let downVote = downVotes[count] as! Int;
+                                    let chatRoomPop = chatRoomPopulations[count] as! Int;
+                                    let category = categories[count] as! String;
+                                    let categoryID = categoryIDs[count] as! Int;
+                                    let chatRoomID = chatRoomIDs[count] as! Int;
+                                    
+                                    let totalVoteCount = upVote - downVote;
+                                    
+                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
+                                    
+                                    self.headlines.append(newHeadline);
+                                    count+=1;
+                                }
                                 self.localFeed.headlines = self.headlines;
                                 self.localFeed.reloadData();
                                 
                                 self.refreshControl.endRefreshing();
                                 
+                                
+                    
                             }
+                        }catch{
                             
-                            
-                
+                            DispatchQueue.main.async {
+                                self.refreshControl.endRefreshing();
+                                self.showErrorAlert();
+                            }
                         }
-                    }catch{
-                        print("error");
-                        DispatchQueue.main.async {
-                            self.refreshControl.endRefreshing();
-                            self.showErrorAlert();
-                        }
+                    }else{
+                        //show error loading
                     }
-                }else{
-                    //show error loading
                 }
             }
+            task.resume();
+        }else{
+            self.loadHotHeadlines();
         }
-        task.resume();
-        
         
     }
     
@@ -290,5 +315,101 @@ extension LocalFeed{
             self.refreshControl.endRefreshing();
         }))
         self.present(alert, animated: true, completion: nil);
+    }
+}
+
+extension LocalFeed{
+    //MARK: Navigation Controller Functions
+    @objc func selectorValueChanged(){
+        if(self.localFeedTitleView!.selectedSegmentIndex == 0){//localFeed
+//            print("0");
+            self.localFeed.headlines = self.headlines;
+            self.localFeed.reloadData();
+        }else{
+//            print("1");
+            self.loadHotHeadlines();
+        }
+    }
+    
+    
+    @objc func loadHotHeadlines(){
+        if(hotHeadlines.count == 0){
+            let userID = standard.object(forKey: "userID") as! String;
+            let url = URL(string: "http://54.202.134.243:3000/load_hottestLocalHeadlines")!
+            var request = URLRequest(url: url);
+            let postBody = "userID=\(userID)&latitude=\(userLatitude!)&longitude=\(userLongtitude!)"
+            request.httpBody = postBody.data(using: .utf8);
+            request.httpMethod = "POST";
+            let task = URLSession.shared.dataTask(with: request) { (data, response, err) in
+                if(err != nil){
+                    //show error
+                    DispatchQueue.main.async {
+                        self.refreshControl.endRefreshing();
+                        self.showErrorAlert();
+                    }
+                }
+                
+                if(data != nil){
+                    let response = NSString(data: data!, encoding: 8);
+                    if(response != "error"){
+                        do{
+                            let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary;
+                            
+                            DispatchQueue.main.async {
+                                //headlineIDs,posterIDs,posterNames,descriptions,upVotes,downVotes,chatRoomPopulations,categories
+                                let headlineIDs = json["headlineIDs"] as! NSArray;
+                                let posterIDs = json["posterIDs"] as! NSArray;
+                                let posterNames = json["posterNames"] as! NSArray;
+                                let descriptions = json["descriptions"] as! NSArray;
+                                let upVotes = json["upVotes"] as! NSArray;
+                                let downVotes = json["downVotes"] as! NSArray;
+                                let chatRoomPopulations = json["chatRoomPopulations"] as! NSArray;
+                                let categories = json["categories"] as! NSArray;
+                                let categoryIDs = json["categoryIDs"] as! NSArray;
+                                let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
+                                
+                                var count = 0;
+                                while(count<headlineIDs.count){
+                                    
+                                    let headlineID = String(headlineIDs[count] as! Int);
+                                    _ = String(posterIDs[count] as! Int);
+                                    let posterName = posterNames[count] as! String;
+                                    let description = descriptions[count] as! String;
+                                    let upVote = upVotes[count] as! Int;
+                                    let downVote = downVotes[count] as! Int;
+                                    let chatRoomPop = chatRoomPopulations[count] as! Int;
+                                    let category = categories[count] as! String;
+                                    let categoryID = categoryIDs[count] as! Int;
+                                    let chatRoomID = chatRoomIDs[count] as! Int;
+                                    
+                                    let totalVoteCount = upVote - downVote;
+                                    
+                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
+                                    
+                                    self.hotHeadlines.append(newHeadline);
+                                    count+=1;
+                                }
+                                self.localFeed.headlines = self.hotHeadlines;
+                                self.localFeed.reloadData();
+                                
+                            }
+                        }catch{
+                            
+                            DispatchQueue.main.async {
+                                self.refreshControl.endRefreshing();
+                                self.showErrorAlert();
+                            }
+                        }
+                    }else{
+                        //show error loading
+                    }
+                }
+            }
+            task.resume();
+        }else{
+            self.refreshControl.endRefreshing()
+            self.localFeed.headlines = self.hotHeadlines;
+            localFeed.reloadData();
+        }
     }
 }

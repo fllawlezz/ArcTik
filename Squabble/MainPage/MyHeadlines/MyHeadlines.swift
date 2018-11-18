@@ -19,6 +19,7 @@ class MyHeadlines:UIViewController, FeedCollectionViewDelegate{
     lazy var myFeedCollectionView: FeedCollectionView = {
         let flowLayout = UICollectionViewFlowLayout();
         let myFeedCollectionView = FeedCollectionView(frame: .zero, collectionViewLayout: flowLayout);
+        myFeedCollectionView.myHeadlinesPage = true;
         return myFeedCollectionView;
     }()
     
@@ -78,6 +79,8 @@ class MyHeadlines:UIViewController, FeedCollectionViewDelegate{
                     do{
                         let json = try JSONSerialization.jsonObject(with: data!, options: .allowFragments) as! NSDictionary;
                         
+//                        print(json);
+                        
                         DispatchQueue.main.async {
                             //headlineIDs,posterIDs,posterNames,descriptions,upVotes,downVotes,chatRoomPopulations,categories
                             let headlineIDs = json["headlineIDs"] as! NSArray;
@@ -110,6 +113,8 @@ class MyHeadlines:UIViewController, FeedCollectionViewDelegate{
                                 let newHeadline = Headline(headline: description, headlineID: headlineID, chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
                                 
                                 self.headlines.append(newHeadline);
+                                print(self.headlines[count].headlineID!);
+                                print(self.headlines[count].headline!);
                                 count+=1;
                             }
                             
@@ -165,7 +170,12 @@ extension MyHeadlines{
     @objc fileprivate func reloadMyHeadlines(notification: NSNotification){
         if let info = notification.userInfo{
             let newHeadline = info["headline"] as! Headline;
+            print(newHeadline.headline!);
+            print(newHeadline.headlineID!);
+            
+            
             self.headlines.insert(newHeadline, at: 0);
+            self.myFeedCollectionView.headlines = self.headlines;
             self.myFeedCollectionView.reloadData();
         }
         

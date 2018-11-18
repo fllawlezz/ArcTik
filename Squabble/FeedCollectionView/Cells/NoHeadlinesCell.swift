@@ -36,4 +36,8 @@ class NoHeadlinesCell: UICollectionViewCell{
         messageLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true;
     }
     
+    func setMessageLabelText(message: String){
+        self.messageLabel.text = message;
+    }
+    
 }

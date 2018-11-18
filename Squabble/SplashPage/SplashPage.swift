@@ -103,6 +103,8 @@ extension SplashPage{
         let locValue:CLLocationCoordinate2D = (locationManager.location?.coordinate)!;
         userLatitude = String(format: "%f",locValue.latitude);
         userLongtitude = String(format: "%f",locValue.longitude);
+   
+        
         stopRotation();
     }
 }

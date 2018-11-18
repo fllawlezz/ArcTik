@@ -17,6 +17,8 @@ class FeedCollectionView: UICollectionView, UICollectionViewDelegate, UICollecti
     var localFeedPage: LocalFeed?;
     var globalFeedPage: GlobalFeed?;
     
+    var myHeadlinesPage = false;
+    
     var feedCollectionViewDelegate: FeedCollectionViewDelegate?;
     
     var feedReuse = "feedReuse";
@@ -43,6 +45,12 @@ class FeedCollectionView: UICollectionView, UICollectionViewDelegate, UICollecti
         if(headlines != nil){
             if(headlines!.count == 0){
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: feedEmpty, for: indexPath) as! NoHeadlinesCell;
+                if(globalFeedPage != nil){
+                    cell.setMessageLabelText(message: "There are no Global Post as of now");
+                }
+                if(myHeadlinesPage){
+                    cell.setMessageLabelText(message: "You haven't posted any headlines... Post Some! :)");
+                }
                 return cell;
             }
             

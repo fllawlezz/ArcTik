@@ -177,7 +177,7 @@ extension ComposeNewHeadline{
     fileprivate func getDate()->String{
         let time = Date();
         let timeFormatter = DateFormatter();
-        timeFormatter.dateFormat = "MM/dd/yyy hh:mm a";
+        timeFormatter.dateFormat = "MM/dd/yyy hh:mm:ss a";
         timeFormatter.amSymbol = "AM";
         timeFormatter.pmSymbol = "PM";
         let date = timeFormatter.string(from: time);
@@ -190,9 +190,11 @@ extension ComposeNewHeadline{
             getAllData();
             let date = getDate();
             //post to server and into the queue
+            print("date:\(date)");
+            
             let url = URL(string: "http://54.202.134.243:3000/post_headline")!
             var urlRequest = URLRequest(url: url);
-            let httpBody = "headline=\(self.headline!)&senderName=\(self.name!)&userID=\(self.userID!)&localOrGlobal=\(self.localOrGlobal!)&categoryID=\(selectedCategory!.categoryID)&selectedCategory=\(self.selectedCategory!.categoryName!)&time=\(date)";
+            let httpBody = "headline=\(self.headline!)&senderName=\(self.name!)&userID=\(self.userID!)&localOrGlobal=\(self.localOrGlobal!)&categoryID=\(selectedCategory!.categoryID)&selectedCategory=\(self.selectedCategory!.categoryName!)&time=\(date)&latitude=\(userLatitude!)&longitude=\(userLongtitude!)";
     //        print(httpBody);
             urlRequest.httpMethod = "POST";
             urlRequest.httpBody = httpBody.data(using: .utf8);
@@ -218,7 +220,15 @@ extension ComposeNewHeadline{
                             let chatRoomID = json["chatRoomID"] as! Int;
                             
                             DispatchQueue.main.async {
-                                let newHeadline = Headline(headline: self.headline!, headlineID: String(headlineID), chatRoomID: chatRoomID,posterName: "Me", categoryName: self.selectedCategory!.categoryName!, categoryID: self.selectedCategory!.categoryID, voteCount: 0, chatRoomPopulation: 0, globalOrLocal: 0);
+                                var localOrGlobal:Int;
+                                if(self.localorGlobalView.selectorSwitch.isOn){//global
+                                    localOrGlobal = 1;
+                                }else{
+                                    localOrGlobal = 0;
+                                }
+                                
+                                let newHeadline = Headline(headline: self.headline!, headlineID: String(headlineID), chatRoomID: chatRoomID,posterName: "Me", categoryName: self.selectedCategory!.categoryName!, categoryID: self.selectedCategory!.categoryID, voteCount: 0, chatRoomPopulation: 0, globalOrLocal: localOrGlobal);
+                                
                                 self.delegate?.postHeadline(headline: newHeadline);
                                 self.dismiss(animated: true, completion: nil);
                             }
