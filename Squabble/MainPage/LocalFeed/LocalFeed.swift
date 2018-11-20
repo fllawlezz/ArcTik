@@ -380,6 +380,8 @@ extension LocalFeed{
                             self.localFeed.headlines = self.hotHeadlines;
                             self.localFeed.reloadData();
                             
+                            
+                            
                         }
                     }catch{
                         
