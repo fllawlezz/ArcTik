@@ -93,6 +93,7 @@ class MyHeadlines:UIViewController, FeedCollectionViewDelegate{
                             let categories = json["categories"] as! NSArray;
                             let categoryIDs = json["categoryIDs"] as! NSArray;
                             let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
+                            let liked = json["likeStatus"] as! NSArray;
                             
                             var count = 0;
                             while(count<headlineIDs.count){
@@ -107,14 +108,15 @@ class MyHeadlines:UIViewController, FeedCollectionViewDelegate{
                                 let category = categories[count] as! String;
                                 let categoryID = categoryIDs[count] as! Int;
                                 let chatRoomID = chatRoomIDs[count] as! Int
+                                let likedStatus = liked[count] as! Int;
                                 
                                 let totalVoteCount = upVote - downVote;
                                 
-                                let newHeadline = Headline(headline: description, headlineID: headlineID, chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
+                                let newHeadline = Headline(headline: description, headlineID: headlineID, chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0, liked: likedStatus);
                                 
                                 self.headlines.append(newHeadline);
-                                print(self.headlines[count].headlineID!);
-                                print(self.headlines[count].headline!);
+//                                print(self.headlines[count].headlineID!);
+//                                print(self.headlines[count].headline!);
                                 count+=1;
                             }
                             

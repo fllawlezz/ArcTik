@@ -88,18 +88,47 @@ class VotingView: UIView{
         self.voteCountLabel.text = String(voteCount);
     }
     
+    func setVoteStatus(voteStatus: Int){
+        //-1 if not voted, 0 if downvoted, 1 if upvoted
+        if(voteStatus == 0){//downvoted
+            setDownVote();
+        }else if(voteStatus == 1){
+            setUpVote();
+        }else{
+            setNoVote();
+        }
+    }
+    
 }
 
 extension VotingView{
+    func setDownVote(){
+        self.downvoteButton.setBackgroundImage(#imageLiteral(resourceName: "downVoteFilled"), for: .normal);
+        self.upvoteButton.setBackgroundImage(#imageLiteral(resourceName: "upvote"), for: .normal);
+        self.downvotePressed = true;
+        self.upvotePressed = false;
+    }
+    
+    func setUpVote(){
+        self.upvoteButton.setBackgroundImage(#imageLiteral(resourceName: "upVoteFilled"), for: .normal);
+        self.downvoteButton.setBackgroundImage(#imageLiteral(resourceName: "downvote"), for: .normal);
+        self.upvotePressed = true;
+        self.downvotePressed = false;
+    }
+    
+    func setNoVote(){
+       upvoteButton.setBackgroundImage(#imageLiteral(resourceName: "upvote"), for: .normal);
+        downvoteButton.setBackgroundImage(#imageLiteral(resourceName: "downvote"), for: .normal);
+        self.upvotePressed = false;
+        self.downvotePressed = false;
+    }
+    
     @objc func handleUpVote(){
         if(voteCount != nil){
             if(!upvotePressed){
                 voteCount! += 1;
                 self.voteCountLabel.text = "\(voteCount!)"
-                self.upvoteButton.setBackgroundImage(#imageLiteral(resourceName: "upVoteFilled"), for: .normal);
-                self.downvoteButton.setBackgroundImage(#imageLiteral(resourceName: "downvote"), for: .normal);
-                self.upvotePressed = true;
-                self.downvotePressed = false;
+                setUpVote();
                 self.delegate?.voted(type: 1);
             }
             
@@ -112,10 +141,7 @@ extension VotingView{
             if(!downvotePressed){
                 voteCount! -= 1;
                 self.voteCountLabel.text = "\(voteCount!)"
-                self.downvoteButton.setBackgroundImage(#imageLiteral(resourceName: "downVoteFilled"), for: .normal);
-                self.upvoteButton.setBackgroundImage(#imageLiteral(resourceName: "upvote"), for: .normal);
-                self.downvotePressed = true;
-                self.upvotePressed = false;
+                setDownVote();
                 self.delegate?.voted(type: 0);
             }
         }

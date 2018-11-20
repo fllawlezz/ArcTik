@@ -169,7 +169,7 @@ extension GlobalFeed{
 
 extension GlobalFeed{
     func postHeadline(headline: Headline) {
-        let newHeadline = Headline(headline: headline.headline!, headlineID: headline.headlineID!, chatRoomID: headline.chatRoomID!, posterName: headline.posterName!, categoryName: headline.categoryName!, categoryID: headline.categoryID!, voteCount: headline.voteCount!, chatRoomPopulation: headline.chatRoomPopulation!, globalOrLocal: headline.globalOrLocal!);
+        let newHeadline = Headline(headline: headline.headline!, headlineID: headline.headlineID!, chatRoomID: headline.chatRoomID!, posterName: headline.posterName!, categoryName: headline.categoryName!, categoryID: headline.categoryID!, voteCount: headline.voteCount!, chatRoomPopulation: headline.chatRoomPopulation!, globalOrLocal: headline.globalOrLocal!, liked: 0);
         
         if(headline.globalOrLocal == 1){
             if(self.headlines.count > 0){
@@ -231,6 +231,7 @@ extension GlobalFeed{
                                 let categories = json["categories"] as! NSArray;
                                 let categoryIDs = json["categoryIDs"] as! NSArray;
                                 let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
+                                let liked = json["likeStatus"] as! NSArray;
                                 
                                 var count = 0;
                                 while(count<headlineIDs.count){
@@ -245,10 +246,11 @@ extension GlobalFeed{
                                     let category = categories[count] as! String;
                                     let categoryID = categoryIDs[count] as! Int;
                                     let chatRoomID = chatRoomIDs[count] as! Int;
+                                    let likedStatus = liked[count] as! Int;
                                     
                                     let totalVoteCount = upVote - downVote;
                                     
-                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 1);
+                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 1, liked: likedStatus);
                                     
                                     self.headlines.append(newHeadline);
                                     count+=1;
@@ -314,6 +316,7 @@ extension GlobalFeed{
                                 let categories = json["categories"] as! NSArray;
                                 let categoryIDs = json["categoryIDs"] as! NSArray;
                                 let chatRoomIDs = json["chatRoomIDs"] as! NSArray;
+                                let liked = json["likeStatus"] as! NSArray;
                                 
                                 var count = 0;
                                 while(count<headlineIDs.count){
@@ -328,10 +331,11 @@ extension GlobalFeed{
                                     let category = categories[count] as! String;
                                     let categoryID = categoryIDs[count] as! Int;
                                     let chatRoomID = chatRoomIDs[count] as! Int;
+                                    let likedStatus = liked[count] as! Int;
                                     
                                     let totalVoteCount = upVote - downVote;
                                     
-                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0);
+                                    let newHeadline = Headline(headline: description, headlineID: headlineID,chatRoomID: chatRoomID, posterName: posterName, categoryName: category, categoryID: categoryID, voteCount: totalVoteCount, chatRoomPopulation: chatRoomPop, globalOrLocal: 0, liked: likedStatus);
                                     
                                     self.hotHeadlines.append(newHeadline);
                                     count+=1;

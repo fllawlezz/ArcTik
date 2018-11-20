@@ -63,7 +63,11 @@ class FeedCollectionViewCell: UICollectionViewCell, VotingViewDelegate{
         return chatRoomImage;
     }()
     
-    var cellHeadline: Headline?;
+    var cellHeadline: Headline?{
+        didSet{
+            self.setVotingStatus();
+        }
+    }
     
     var posterName: String?;
     var headline: String?;
@@ -112,7 +116,6 @@ class FeedCollectionViewCell: UICollectionViewCell, VotingViewDelegate{
         posterNameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true;
         posterNameLabel.heightAnchor.constraint(equalToConstant: 25).isActive = true;
         posterNameLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -80).isActive = true;
-//        posterNameLabel.backgroundColor = UIColor.blue;
     }
     
     fileprivate func setupCategoryNameLabel(){
@@ -129,7 +132,6 @@ class FeedCollectionViewCell: UICollectionViewCell, VotingViewDelegate{
         headlineLabel.topAnchor.constraint(equalTo: self.posterNameLabel.bottomAnchor).isActive = true;
         headlineLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -10).isActive = true;
         headlineLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -25).isActive = true;
-//        headlineLabel.backgroundColor = UIColor.red;
         headlineLabel.text = headlineText;
     }
     
@@ -175,14 +177,21 @@ class FeedCollectionViewCell: UICollectionViewCell, VotingViewDelegate{
         self.numberOfPeopleInChatRoom.text = "\(population)/100"
     }
     
+    func setVotingStatus(){
+        votingView.setVoteStatus(voteStatus: self.cellHeadline!.voteStatus!);
+    }
+    
 }
 
 extension FeedCollectionViewCell{
     func voted(type: Int) {
         let vote = type;
+        let userID = standard.object(forKey: "userID") as! String
         let url = URL(string: "http://54.202.134.243:3000/upVote_downVote")!;
         var request = URLRequest(url: url);
-        let body = "vote=\(vote)&headlineID=\(self.cellHeadline!.headlineID!)";
+        let body = "userID=\(userID)&vote=\(vote)&headlineID=\(self.cellHeadline!.headlineID!)";
+        
+        
         request.httpBody = body.data(using: .utf8);
         request.httpMethod = "POST";
         let task = URLSession.shared.dataTask(with: request) { (data, res, err) in
@@ -208,6 +217,7 @@ extension FeedCollectionViewCell{
     }
     
     func handleSendErrorNotification(){
+//        print("error upvote/downvote");
         let name = Notification.Name(rawValue: voteSendErrorNotification);
         NotificationCenter.default.post(name: name, object: nil);
     }

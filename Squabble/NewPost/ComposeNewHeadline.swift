@@ -227,7 +227,7 @@ extension ComposeNewHeadline{
                                     localOrGlobal = 0;
                                 }
                                 
-                                let newHeadline = Headline(headline: self.headline!, headlineID: String(headlineID), chatRoomID: chatRoomID,posterName: "Me", categoryName: self.selectedCategory!.categoryName!, categoryID: self.selectedCategory!.categoryID, voteCount: 0, chatRoomPopulation: 0, globalOrLocal: localOrGlobal);
+                                let newHeadline = Headline(headline: self.headline!, headlineID: String(headlineID), chatRoomID: chatRoomID,posterName: "Me", categoryName: self.selectedCategory!.categoryName!, categoryID: self.selectedCategory!.categoryID, voteCount: 0, chatRoomPopulation: 0, globalOrLocal: localOrGlobal, liked: 0);
                                 
                                 self.delegate?.postHeadline(headline: newHeadline);
                                 self.dismiss(animated: true, completion: nil);

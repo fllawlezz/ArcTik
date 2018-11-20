@@ -18,8 +18,9 @@ class Headline: NSObject{
     var chatRoomPopulation: Int?;
     var globalOrLocal: Int?
     var chatRoomID: Int?
+    var voteStatus:Int?;
     
-    init(headline: String, headlineID: String, chatRoomID: Int, posterName: String, categoryName: String, categoryID: Int, voteCount: Int, chatRoomPopulation: Int, globalOrLocal: Int) {
+    init(headline: String, headlineID: String, chatRoomID: Int, posterName: String, categoryName: String, categoryID: Int, voteCount: Int, chatRoomPopulation: Int, globalOrLocal: Int, liked: Int) {
         super.init();
         self.headline = headline;
         self.headlineID = headlineID;
@@ -30,5 +31,6 @@ class Headline: NSObject{
         self.chatRoomPopulation = chatRoomPopulation;
         self.globalOrLocal = globalOrLocal;
         self.chatRoomID = chatRoomID;
+        self.voteStatus = liked;
     }
 }
